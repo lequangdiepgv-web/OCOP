@@ -1,0 +1,369 @@
+<title>Chấm điểm OCOP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Bitter:wght@600;700&display=swap">
+<style>
+/* Layout: thanh điều hướng trên cùng + vùng làm việc một cột; bảng cuộn ngang trong khung riêng */
+:root{
+  --bg:#f6f5ef; --surface:#ffffff; --fg:#1d2a22; --muted:#5d6b62; --line:#dcdfd3;
+  --green:#1f5d3d; --green-ink:#ffffff; --amber:#b9770e; --amber-soft:#fbefd2;
+  --ok:#17794a; --ok-soft:#dff3e7; --warn:#9a6700; --warn-soft:#fff1cc; --bad:#b3261e; --bad-soft:#fbe3e0;
+  --f-body:"Be Vietnam Pro",system-ui,sans-serif; --f-disp:"Bitter",Georgia,serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121a15; --surface:#1a251e; --fg:#e8eee9; --muted:#9db0a3; --line:#2c3b31;
+  --green:#5fbf8a; --green-ink:#0d1a12; --amber:#e3a43a; --amber-soft:#3a2d12;
+  --ok:#5fd18f; --ok-soft:#173826; --warn:#e8bd5a; --warn-soft:#3a2f10; --bad:#ff8f86; --bad-soft:#40201d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121a15; --surface:#1a251e; --fg:#e8eee9; --muted:#9db0a3; --line:#2c3b31;
+  --green:#5fbf8a; --green-ink:#0d1a12; --amber:#e3a43a; --amber-soft:#3a2d12;
+  --ok:#5fd18f; --ok-soft:#173826; --warn:#e8bd5a; --warn-soft:#3a2f10; --bad:#ff8f86; --bad-soft:#40201d; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 var(--f-body);padding-block:0 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto}
+header.top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;padding:16px 0 8px}
+header.top h1{font:700 22px var(--f-disp);margin:0;color:var(--green)}
+header.top small{color:var(--muted)}
+nav{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);padding-bottom:0;margin-bottom:20px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 12px;font:500 14px var(--f-body);color:var(--muted);cursor:pointer;white-space:nowrap}
+nav button[aria-current="true"]{color:var(--green);border-color:var(--amber);font-weight:700}
+h2{font:700 20px var(--f-disp);margin:0 0 12px;text-wrap:balance}
+h3{font:600 15px var(--f-body);margin:0 0 8px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:16px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.row>*{min-width:0}
+.spacer{flex:1}
+button.btn,a.btn{font:600 14px var(--f-body);padding:9px 14px;border-radius:6px;border:1px solid var(--green);background:var(--green);color:var(--green-ink);cursor:pointer}
+button.btn.ghost{background:transparent;color:var(--green)}
+button.btn.danger{background:transparent;border-color:var(--bad);color:var(--bad)}
+button.btn.sm{padding:5px 9px;font-size:13px}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--amber);outline-offset:1px}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);font-weight:500}
+input,select,textarea{font:15px var(--f-body);padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%;min-width:0}
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--bg);white-space:nowrap}
+td.n,th.n{text-align:right}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.mute{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.banner{border-left:4px solid var(--amber);background:var(--amber-soft);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:16px;font-size:14px}
+.banner.ok{border-color:var(--ok);background:var(--ok-soft)}
+.stat{font:700 28px var(--f-disp);color:var(--green);font-variant-numeric:tabular-nums}
+.stat small{display:block;font:500 13px var(--f-body);color:var(--muted)}
+.stars{color:var(--amber);letter-spacing:2px;font-size:18px;white-space:nowrap}
+.part{font:700 13px var(--f-body);text-transform:uppercase;letter-spacing:.05em;color:var(--green);margin:18px 0 6px;display:flex;justify-content:space-between;gap:8px}
+.crit{display:grid;grid-template-columns:1fr 92px;gap:8px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.crit .cn{min-width:0}.crit .cn b{font-weight:600}.crit .cn span{color:var(--muted);font-size:12px;display:block}
+.crit input{text-align:right;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;min-width:80px}
+.bar i{display:block;height:100%;background:var(--green)}
+.sticky-total{position:sticky;bottom:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-top:12px;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;box-shadow:0 -4px 12px rgba(0,0,0,.08)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.modal .box{background:var(--surface);border-radius:10px;padding:18px;width:min(640px,100%);max-height:90%;overflow:auto}
+.modal textarea{height:240px;font:12px/1.4 ui-monospace,Menlo,monospace}
+.steps{display:flex;flex-wrap:wrap;gap:6px}
+.muted{color:var(--muted)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted)}
+@media(max-width:560px){.crit{grid-template-columns:1fr 78px}}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .25s}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <h1>Chấm điểm OCOP</h1>
+    <small>Bộ sản phẩm Mật ong, mật khác và nông sản thực phẩm khác · QĐ 26/2026/QĐ-TTg</small>
+    <span class="spacer"></span>
+    <span id="savedAt" class="muted" style="font-size:12px"></span>
+  </header>
+  <nav id="nav"></nav>
+  <main id="view"></main>
+</div>
+<div id="modal"></div>
+
+<script>
+/* ===== Dữ liệu và quy tắc ===== */
+const KEY='ocop-honey-v1';
+const GROUPS=['Mật ong','Mật khác (sáp ong, sữa ong chúa, phấn hoa...)','Nông sản thực phẩm khác'];
+const STATUS=['Hồ sơ cấp xã','Tổ tư vấn đánh giá','Hội đồng cấp tỉnh chấm','Có kết quả','Đã ra quyết định công nhận','Chuyển cấp Trung ương'];
+const PARTS={A:{n:'Phần A · Sản phẩm và sức mạnh cộng đồng',max:40},B:{n:'Phần B · Khả năng tiếp thị',max:25},C:{n:'Phần C · Chất lượng sản phẩm',max:35}};
+const BANDS=[[90,5,'Cấp quốc gia'],[70,4,'Cấp tỉnh'],[50,3,'Cấp tỉnh'],[30,2,'Không công nhận'],[0,1,'Không công nhận']];
+/* Tên tiêu chí con lấy theo mô tả công khai của Quyết định; điểm từng tiêu chí là phân bổ tạm, chỉ tổng mỗi phần (40/25/35) đã xác thực. */
+const SEED_CRIT=[
+ ['A1','A','Tổ chức sản xuất',14],['A2','A','Phát triển sản phẩm',12],['A3','A','Sức mạnh cộng đồng',14],
+ ['B1','B','Tiếp thị',13],['B2','B','Câu chuyện sản phẩm',12],
+ ['C1','C','Chỉ tiêu cảm quan',7],['C2','C','Chỉ tiêu dinh dưỡng',6],['C3','C','Tính độc đáo',5],
+ ['C4','C','Công bố và bảo đảm chất lượng',7],['C5','C','Hướng dẫn sử dụng',4],['C6','C','Cơ hội thị trường toàn cầu',6]
+].map(([id,part,name,max])=>({id,part,name,max,minStar:0,minScore:0,hint:''}));
+
+let S=load();
+function fresh(){return{criteria:{verified:false,items:JSON.parse(JSON.stringify(SEED_CRIT))},settings:{minVotes:1,round:'Đợt 1',year:2026},members:[],products:[],scores:{},demo:false}}
+function load(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(fresh(),JSON.parse(r))}catch(e){}return fresh()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));document.getElementById('savedAt').textContent='Đã lưu '+new Date().toLocaleTimeString('vi-VN')}catch(e){document.getElementById('savedAt').textContent='Không lưu được trên trình duyệt này, hãy sao lưu JSON'}}
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=v=>{const x=parseFloat(String(v).replace(',','.'));return isNaN(x)?0:x};
+const f1=v=>(Math.round(v*100)/100).toLocaleString('vi-VN',{minimumFractionDigits:0,maximumFractionDigits:2});
+const crit=()=>S.criteria.items;
+const partMax=p=>crit().filter(c=>c.part===p).reduce((a,c)=>a+num(c.max),0);
+const totalMax=()=>crit().reduce((a,c)=>a+num(c.max),0);
+
+function scorers(){return S.members.filter(m=>m.scores!==false)}
+function sheet(pid,mid){return S.scores[pid+'|'+mid]}
+function sheetTotals(sh){const t={A:0,B:0,C:0};crit().forEach(c=>{t[c.part]+=num(sh.v[c.id])});t.all=t.A+t.B+t.C;return t}
+/* Tổng hợp: trung bình cộng điểm tổng của các phiếu đã nộp (Quyết định dùng "tổng điểm trung bình") */
+function aggregate(pid){
+  const subs=scorers().map(m=>({m,sh:sheet(pid,m.id)})).filter(x=>x.sh&&x.sh.submitted);
+  const n=subs.length,avgC={};
+  crit().forEach(c=>{avgC[c.id]=n?subs.reduce((a,x)=>a+num(x.sh.v[c.id]),0)/n:0});
+  const avg={A:0,B:0,C:0};crit().forEach(c=>avg[c.part]+=avgC[c.id]);avg.all=avg.A+avg.B+avg.C;
+  let star=0,reasons=[];
+  if(n){star=BANDS.find(b=>avg.all>=b[0])[1];
+    crit().forEach(c=>{if(c.minStar>0&&c.minScore>0&&avgC[c.id]<c.minScore&&star>=c.minStar){star=c.minStar-1;reasons.push(c.id+' chưa đạt tối thiểu '+f1(c.minScore))}});
+    if(star<1)star=1}
+  const total=scorers().length;
+  return{n,total,avgC,avg,star,reasons,subs,enough:n>=Math.max(1,S.settings.minVotes)};
+}
+const stars=n=>n?'★'.repeat(n)+'☆'.repeat(5-n):'–';
+const bandLabel=n=>n?BANDS.find(b=>b[1]===n)[2]:'';
+function addMonths(d,m){const x=new Date(d);x.setMonth(x.getMonth()+m);return x}
+const fd=d=>d?new Date(d).toLocaleDateString('vi-VN'):'';
+
+/* ===== Điều hướng ===== */
+const TABS=[['home','Tổng quan'],['products','Sản phẩm'],['council','Hội đồng'],['score','Chấm điểm'],['result','Tổng hợp kết quả'],['criteria','Bộ tiêu chí'],['process','Quy trình'],['data','Sao lưu']];
+let tab=(location.hash||'#home').slice(1);if(!TABS.find(t=>t[0]===tab))tab='home';
+let sel={pid:'',mid:'',rp:''};
+function go(t){tab=t;location.hash=t;render()}
+window.addEventListener('hashchange',()=>{const t=location.hash.slice(1);if(TABS.find(x=>x[0]===t)&&t!==tab){tab=t;render()}});
+
+function render(){
+  document.getElementById('nav').innerHTML=TABS.map(([k,l])=>`<button data-go="${k}" aria-current="${k===tab}">${l}</button>`).join('');
+  const v=document.getElementById('view');
+  v.innerHTML=({home,products,council,score,result,criteriaV,process,data})[tab==='criteria'?'criteriaV':tab]();
+  if(tab==='score')bindScore();
+}
+
+function warnBanner(){
+  return S.criteria.verified?'':`<div class="banner"><b>Bộ tiêu chí chưa được đối chiếu với Phụ lục II.</b> Tổng ba phần (A 40, B 25, C 35) và các ngưỡng hạng sao đã khớp Quyết định. Điểm tối đa từng tiêu chí con đang là phân bổ tạm. Vào tab <a href="#criteria" data-go="criteria">Bộ tiêu chí</a> để sửa theo Phụ lục II rồi bấm xác nhận.</div>`;
+}
+
+/* ===== Tổng quan ===== */
+function home(){
+  const P=S.products,ag=P.map(p=>({p,a:aggregate(p.id)}));
+  const done=ag.filter(x=>x.a.enough).length;
+  const c3=ag.filter(x=>x.a.enough&&x.a.star>=3).length, c5=ag.filter(x=>x.a.enough&&x.a.star===5).length;
+  const pend=S.members.length?scorers().length*P.length-Object.values(S.scores).filter(s=>s.submitted).length:0;
+  let h=warnBanner()+`<h2>Tổng quan ${esc(S.settings.round)} · ${S.settings.year}</h2><div class="grid" style="margin-bottom:16px">
+   <div class="card stat">${P.length}<small>sản phẩm đăng ký</small></div>
+   <div class="card stat">${done}<small>đã đủ phiếu để tổng hợp</small></div>
+   <div class="card stat">${c3}<small>đạt từ 3 sao${c5?` (${c5} tiềm năng 5 sao)`:''}</small></div>
+   <div class="card stat">${Math.max(0,pend)}<small>phiếu còn thiếu</small></div></div>`;
+  if(!P.length)return h+`<div class="card empty"><p>Chưa có sản phẩm nào. Thêm sản phẩm ở tab Sản phẩm, thêm thành viên ở tab Hội đồng, rồi chấm điểm.</p><button class="btn" data-act="demo">Nạp dữ liệu mẫu để xem thử</button></div>`;
+  h+=`<div class="tablebox"><table><tr><th>Sản phẩm</th><th>Phiếu</th><th class="n">Điểm TB</th><th>Hạng</th><th>Trạng thái</th></tr>`+
+   ag.map(({p,a})=>`<tr><td><b>${esc(p.name)}</b><br><span class="muted">${esc(p.owner)}</span></td><td>${a.n}/${a.total}</td><td class="n">${a.n?f1(a.avg.all):'–'}</td><td>${a.n?`<span class="stars">${stars(a.star)}</span>`:'–'}</td><td><span class="pill mute">${esc(STATUS[p.status||0])}</span></td></tr>`).join('')+`</table></div>`;
+  if(S.demo)h+=`<p class="muted">Đang hiển thị dữ liệu mẫu. <button class="btn sm danger" data-act="wipe">Xóa dữ liệu mẫu</button></p>`;
+  return h;
+}
+
+/* ===== Sản phẩm ===== */
+function certHint(p){if(!p.decisionDate)return '';const ex=addMonths(p.decisionDate,36),w1=new Date(ex.getTime()-180*864e5),w2=new Date(ex.getTime()-120*864e5);return `Hết hạn ${fd(ex)}. Nộp hồ sơ đánh giá lại từ ${fd(w1)} đến ${fd(w2)}.`}
+function products(){
+  const opt=(arr,v)=>arr.map(x=>`<option ${x===v?'selected':''}>${esc(x)}</option>`).join('');
+  return `<h2>Sản phẩm đăng ký</h2><form class="card" id="pf"><div class="grid">
+   <label>Tên sản phẩm<input id="pn" required placeholder="Mật ong hoa nhãn"></label>
+   <label>Chủ thể sản xuất<input id="po" required placeholder="HTX / công ty / hộ kinh doanh"></label>
+   <label>Xã, phường<input id="pc" placeholder="Xã..."></label>
+   <label>Nhóm sản phẩm<select id="pg">${opt(GROUPS)}</select></label></div>
+   <div class="row" style="margin-top:12px"><button class="btn" type="submit">Thêm sản phẩm</button></div></form>
+  ${S.products.length?`<div class="tablebox"><table><tr><th>Sản phẩm</th><th>Nhóm</th><th>Tiến trình</th><th>Quyết định công nhận</th><th></th></tr>`+S.products.map(p=>{
+   const ex=p.decisionDate?addMonths(p.decisionDate,36):null,w1=ex?new Date(ex.getTime()-180*864e5):null,w2=ex?new Date(ex.getTime()-120*864e5):null;
+   return `<tr><td><b>${esc(p.name)}</b><br><span class="muted">${esc(p.owner)}${p.commune?' · '+esc(p.commune):''}</span></td><td>${esc(p.group)}</td>
+   <td><select data-pstatus="${p.id}">${STATUS.map((s,i)=>`<option value="${i}" ${i==(p.status||0)?'selected':''}>${s}</option>`).join('')}</select></td>
+   <td><input type="date" data-pdate="${p.id}" value="${p.decisionDate||''}" min="2000-01-01" max="2100-12-31" style="min-width:140px"><div class="muted" id="ch-${p.id}" style="font-size:12px">${certHint(p)}</div></td>
+   <td><button class="btn sm danger" data-delp="${p.id}">Xóa</button></td></tr>`}).join('')+`</table></div>`:`<div class="card empty">Chưa có sản phẩm.</div>`}`;
+}
+
+/* ===== Hội đồng ===== */
+function council(){
+  return `<h2>Hội đồng đánh giá</h2>
+  <p class="muted">Hội đồng cấp tỉnh do Chủ tịch UBND tỉnh thành lập, gồm đại diện các sở liên quan và đơn vị chuyên ngành. Số thành viên không được quy định cụ thể trong văn bản công khai, nên ứng dụng cho cấu hình số phiếu tối thiểu.</p>
+  <form class="card" id="mf"><div class="grid">
+   <label>Họ tên<input id="mn" required></label>
+   <label>Chức danh trong hội đồng<select id="mr"><option>Chủ tịch</option><option>Phó Chủ tịch</option><option selected>Thành viên</option><option>Thư ký</option></select></label>
+   <label>Đơn vị<input id="mu" placeholder="Sở Nông nghiệp và Môi trường"></label>
+   <label>Mã truy cập (PIN)<input id="mp" placeholder="tùy chọn, 4 số" maxlength="8"></label></div>
+   <div class="row" style="margin-top:12px"><label style="flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="ms" checked style="width:auto"> Tham gia chấm điểm</label><span class="spacer"></span><button class="btn" type="submit">Thêm thành viên</button></div></form>
+  <div class="card"><label style="max-width:260px">Số phiếu tối thiểu để tổng hợp<input type="number" min="1" id="minv" value="${S.settings.minVotes}"></label></div>
+  ${S.members.length?`<div class="tablebox"><table><tr><th>Họ tên</th><th>Chức danh</th><th>Đơn vị</th><th>Chấm điểm</th><th></th></tr>`+S.members.map(m=>`<tr><td><b>${esc(m.name)}</b></td><td>${esc(m.role)}</td><td>${esc(m.unit)}</td><td><input type="checkbox" data-mscore="${m.id}" ${m.scores!==false?'checked':''} style="width:auto"></td><td><button class="btn sm danger" data-delm="${m.id}">Xóa</button></td></tr>`).join('')+`</table></div>`:`<div class="card empty">Chưa có thành viên.</div>`}`;
+}
+
+/* ===== Chấm điểm ===== */
+function score(){
+  if(!S.products.length||!scorers().length)return `<h2>Chấm điểm</h2><div class="card empty">Cần có ít nhất một sản phẩm và một thành viên chấm điểm.</div>`;
+  if(!S.products.find(p=>p.id===sel.pid))sel.pid=S.products[0].id;
+  if(!scorers().find(m=>m.id===sel.mid))sel.mid=scorers()[0].id;
+  const m=S.members.find(x=>x.id===sel.mid),sh=sheet(sel.pid,sel.mid)||{v:{},submitted:false,note:''};
+  const lock=sh.submitted;let html=warnBanner()+`<h2>Phiếu chấm điểm</h2><div class="card"><div class="grid">
+   <label>Sản phẩm<select id="sp">${S.products.map(p=>`<option value="${p.id}" ${p.id===sel.pid?'selected':''}>${esc(p.name)}</option>`).join('')}</select></label>
+   <label>Thành viên hội đồng<select id="sm">${scorers().map(x=>`<option value="${x.id}" ${x.id===sel.mid?'selected':''}>${esc(x.name)} (${esc(x.role)})</option>`).join('')}</select></label></div>
+   <div style="margin-top:8px">${lock?'<span class="pill ok">Phiếu đã nộp, đang khóa</span>':'<span class="pill warn">Phiếu nháp</span>'}</div></div>
+   <div class="card" id="sheetbox">`;
+  ['A','B','C'].forEach(p=>{
+    html+=`<div class="part"><span>${PARTS[p].n}</span><span id="pt${p}"></span></div>`+
+    crit().filter(c=>c.part===p).map(c=>`<div class="crit"><div class="cn"><b>${esc(c.id)} · ${esc(c.name)}</b><span>Tối đa ${f1(num(c.max))} điểm${c.minStar?` · bắt buộc đạt từ ${f1(c.minScore)} điểm để xét ${c.minStar} sao`:''}</span></div>
+     <input type="number" inputmode="decimal" step="0.5" min="0" max="${c.max}" data-c="${c.id}" value="${sh.v[c.id]??''}" ${lock?'disabled':''} aria-label="Điểm ${esc(c.name)}"></div>`).join('');
+  });
+  html+=`<label style="margin-top:14px">Nhận xét của thành viên<textarea id="snote" rows="2" ${lock?'disabled':''}>${esc(sh.note||'')}</textarea></label></div>
+  <div class="sticky-total"><div class="stat" id="tAll">0<small>tổng / ${f1(totalMax())}</small></div><span id="tStar"></span><span class="spacer"></span>
+  ${lock?`<button class="btn ghost" id="reopen">Mở lại phiếu</button>`:`<button class="btn ghost" id="draft">Lưu nháp</button><button class="btn" id="submit">Nộp phiếu</button>`}</div>`;
+  return html;
+}
+function readSheet(){const v={};document.querySelectorAll('[data-c]').forEach(i=>{if(i.value!=='')v[i.dataset.c]=num(i.value)});return v}
+function liveTotals(){
+  const v=readSheet(),t={A:0,B:0,C:0};let bad=0;
+  crit().forEach(c=>{const x=v[c.id]||0;t[c.part]+=x;const el=document.querySelector(`[data-c="${c.id}"]`);const over=x>num(c.max)||x<0;if(el){el.style.borderColor=over?'var(--bad)':'';} if(over)bad++});
+  ['A','B','C'].forEach(p=>{const e=document.getElementById('pt'+p);if(e)e.textContent=f1(t[p])+' / '+f1(partMax(p))});
+  const all=t.A+t.B+t.C;document.getElementById('tAll').firstChild.textContent=f1(all);
+  const b=BANDS.find(b=>all>=b[0]);document.getElementById('tStar').innerHTML=`<span class="stars">${stars(b[1])}</span> <span class="muted">${b[2]} (theo phiếu này)</span>`+(bad?` <span class="pill bad">${bad} ô vượt khung điểm</span>`:'');
+  return{v,bad};
+}
+function bindScore(){
+  const q=id=>document.getElementById(id);if(!q('sp'))return;
+  q('sp').onchange=e=>{sel.pid=e.target.value;render()};q('sm').onchange=e=>{sel.mid=e.target.value;render()};
+  document.querySelectorAll('[data-c]').forEach(i=>i.addEventListener('input',liveTotals));liveTotals();
+  const store=sub=>{const {v,bad}=liveTotals();if(sub){if(bad){toast('Có ô vượt khung điểm tối đa, hãy sửa trước khi nộp.');return}
+      const miss=crit().filter(c=>v[c.id]===undefined).length;if(miss){toast(`Còn ${miss} tiêu chí chưa nhập điểm. Nhập 0 nếu không đạt.`);return}}
+    S.scores[sel.pid+'|'+sel.mid]={v,submitted:sub,note:q('snote').value,at:Date.now()};save();render();toast(sub?'Đã nộp phiếu':'Đã lưu nháp')};
+  if(q('draft'))q('draft').onclick=()=>store(false);if(q('submit'))q('submit').onclick=()=>store(true);
+  if(q('reopen'))q('reopen').onclick=()=>{const s=sheet(sel.pid,sel.mid);s.submitted=false;save();render()};
+}
+
+/* ===== Tổng hợp ===== */
+function result(){
+  if(!S.products.length)return `<h2>Tổng hợp kết quả</h2><div class="card empty">Chưa có sản phẩm.</div>`;
+  if(!S.products.find(p=>p.id===sel.rp))sel.rp=S.products[0].id;
+  const p=S.products.find(x=>x.id===sel.rp),a=aggregate(p.id);
+  let h=warnBanner()+`<h2>Tổng hợp kết quả</h2><div class="row" style="margin-bottom:12px"><label style="flex:1;min-width:220px">Sản phẩm<select id="rp">${S.products.map(x=>`<option value="${x.id}" ${x.id===p.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></label><span class="spacer"></span><button class="btn ghost" data-act="csv">Xuất bảng tổng hợp</button></div>`;
+  h+=`<div class="card"><div class="row" style="gap:20px"><div class="stat">${a.n?f1(a.avg.all):'–'}<small>điểm trung bình / ${f1(totalMax())}</small></div>
+   <div><div class="stars" style="font-size:26px">${stars(a.star)}</div><div>${a.n?esc(bandLabel(a.star)):'Chưa có phiếu đã nộp'}</div></div>
+   <div>${a.enough?'<span class="pill ok">Đủ phiếu</span>':`<span class="pill warn">Mới ${a.n}/${Math.max(1,S.settings.minVotes)} phiếu tối thiểu</span>`}
+   ${a.n&&a.star===5?'<br><span class="pill ok">Tiềm năng 5 sao, chuyển Bộ Nông nghiệp và Môi trường</span>':''}${a.reasons.length?`<br><span class="pill bad">Bị hạ hạng: ${esc(a.reasons.join('; '))}</span>`:''}</div></div></div>`;
+  if(!S.criteria.verified)h+='';
+  h+=`<h3>Điểm từng thành viên</h3><div class="tablebox"><table><tr><th>Thành viên</th><th class="n">A /${f1(partMax('A'))}</th><th class="n">B /${f1(partMax('B'))}</th><th class="n">C /${f1(partMax('C'))}</th><th class="n">Tổng</th><th>Phiếu</th></tr>`+
+  scorers().map(m=>{const sh=sheet(p.id,m.id);if(!sh)return `<tr><td>${esc(m.name)}</td><td colspan="4" class="muted">Chưa chấm</td><td><span class="pill mute">Chưa có</span></td></tr>`;const t=sheetTotals(sh);
+   return `<tr><td>${esc(m.name)}<br><span class="muted">${esc(m.role)}</span></td><td class="n">${f1(t.A)}</td><td class="n">${f1(t.B)}</td><td class="n">${f1(t.C)}</td><td class="n"><b>${f1(t.all)}</b></td><td><span class="pill ${sh.submitted?'ok':'warn'}">${sh.submitted?'Đã nộp':'Nháp'}</span></td></tr>`}).join('')+
+  (a.n?`<tr><td><b>Trung bình ${a.n} phiếu đã nộp</b></td><td class="n"><b>${f1(a.avg.A)}</b></td><td class="n"><b>${f1(a.avg.B)}</b></td><td class="n"><b>${f1(a.avg.C)}</b></td><td class="n"><b>${f1(a.avg.all)}</b></td><td></td></tr>`:'')+`</table></div>`;
+  if(a.n){h+=`<h3 style="margin-top:20px">Trung bình theo tiêu chí</h3><div class="tablebox"><table><tr><th>Tiêu chí</th><th class="n">Tối đa</th><th class="n">TB</th><th style="min-width:120px">Mức đạt</th></tr>`+crit().map(c=>`<tr><td>${esc(c.id)} · ${esc(c.name)}</td><td class="n">${f1(num(c.max))}</td><td class="n">${f1(a.avgC[c.id])}</td><td><div class="bar"><i style="width:${Math.min(100,a.avgC[c.id]/num(c.max)*100)}%"></i></div></td></tr>`).join('')+`</table></div>`;
+    const notes=a.subs.filter(x=>x.sh.note);if(notes.length)h+=`<h3 style="margin-top:20px">Nhận xét</h3>`+notes.map(x=>`<div class="card"><b>${esc(x.m.name)}</b><br>${esc(x.sh.note)}</div>`).join('')}
+  h+=`<h3 style="margin-top:20px">Bảng xếp hạng toàn đợt</h3><div class="tablebox"><table><tr><th>#</th><th>Sản phẩm</th><th class="n">Điểm TB</th><th>Hạng</th><th>Phiếu</th></tr>`+
+   S.products.map(x=>({x,a:aggregate(x.id)})).sort((u,v)=>v.a.avg.all-u.a.avg.all).map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.x.name)}</td><td class="n">${r.a.n?f1(r.a.avg.all):'–'}</td><td><span class="stars">${r.a.n?stars(r.a.star):'–'}</span></td><td>${r.a.n}/${r.a.total}</td></tr>`).join('')+`</table></div>`;
+  return h;
+}
+
+/* ===== Bộ tiêu chí ===== */
+function criteriaV(){
+  const sums=['A','B','C'].map(p=>[p,partMax(p),PARTS[p].max]);const ok=sums.every(s=>s[1]===s[2]);
+  return `<h2>Bộ tiêu chí</h2>
+  ${S.criteria.verified?'<div class="banner ok">Đã xác nhận đối chiếu với Phụ lục II.</div>':'<div class="banner"><b>Điểm từng tiêu chí con là phân bổ tạm.</b> Văn bản công khai xác nhận tổng Phần A 40, Phần B 25, Phần C 35 và ngưỡng hạng sao. Phụ lục II (nhóm Mật ong, mật khác và nông sản thực phẩm khác) chưa đọc được trực tiếp, nên hãy sửa tên và điểm theo bản gốc rồi bấm xác nhận.</div>'}
+  <div class="row" style="margin-bottom:12px">${sums.map(([p,v,m])=>`<span class="pill ${v===m?'ok':'bad'}">Phần ${p}: ${f1(v)}/${m}</span>`).join('')}<span class="pill ${totalMax()===100?'ok':'bad'}">Tổng ${f1(totalMax())}/100</span></div>
+  <div class="tablebox"><table><tr><th>Mã</th><th>Phần</th><th>Tên tiêu chí</th><th class="n">Tối đa</th><th class="n" title="Hạng sao mà tiêu chí này là điều kiện bắt buộc (dấu * trong Phụ lục)">Bắt buộc từ sao</th><th class="n">Điểm tối thiểu</th><th></th></tr>`+
+  crit().map(c=>`<tr><td><input data-ck="${c.id}:id" value="${esc(c.id)}" style="width:64px"></td><td><select data-ck="${c.id}:part">${['A','B','C'].map(p=>`<option ${p===c.part?'selected':''}>${p}</option>`).join('')}</select></td>
+   <td><input data-ck="${c.id}:name" value="${esc(c.name)}" style="min-width:200px"></td><td><input type="number" step="0.5" min="0" data-ck="${c.id}:max" value="${c.max}" style="width:80px"></td>
+   <td><select data-ck="${c.id}:minStar"><option value="0">Không</option>${[3,4,5].map(s=>`<option ${c.minStar===s?'selected':''} value="${s}">${s} sao</option>`).join('')}</select></td>
+   <td><input type="number" step="0.5" min="0" data-ck="${c.id}:minScore" value="${c.minScore}" style="width:80px"></td><td><button class="btn sm danger" data-delc="${c.id}">Xóa</button></td></tr>`).join('')+`</table></div>
+  <div class="row" style="margin-top:12px"><button class="btn ghost" data-act="addc">Thêm tiêu chí</button><button class="btn ghost" data-act="resetc">Về bộ tạm ban đầu</button><span class="spacer"></span>
+  <button class="btn" data-act="verify" ${ok?'':'disabled'}>${S.criteria.verified?'Bỏ xác nhận':'Xác nhận đã đối chiếu Phụ lục II'}</button></div>
+  <p class="muted">Tiêu chí bắt buộc: nếu điểm trung bình của tiêu chí thấp hơn mức tối thiểu, hạng sao bị hạ xuống dưới hạng đang xét. Đổi tiêu chí sau khi đã chấm sẽ làm đổi tổng điểm của các phiếu cũ.</p>
+  <h3 style="margin-top:20px">Ngưỡng hạng sao (theo Quyết định)</h3><div class="tablebox"><table><tr><th>Hạng</th><th>Điểm trung bình</th><th>Kết quả</th></tr>
+  <tr><td class="stars">★★★★★</td><td>90 đến 100</td><td>Cấp quốc gia, Bộ trưởng Bộ Nông nghiệp và Môi trường quyết định</td></tr>
+  <tr><td class="stars">★★★★</td><td>70 đến dưới 90</td><td>Cấp tỉnh, Chủ tịch UBND tỉnh quyết định</td></tr>
+  <tr><td class="stars">★★★</td><td>50 đến dưới 70</td><td>Cấp tỉnh, Chủ tịch UBND tỉnh quyết định</td></tr>
+  <tr><td class="stars">★★</td><td>30 đến dưới 50</td><td>Không ban hành quyết định công nhận</td></tr>
+  <tr><td class="stars">★</td><td>Dưới 30</td><td>Không ban hành quyết định công nhận</td></tr></table></div>`;
+}
+
+/* ===== Quy trình ===== */
+function process(){
+  const step=(t,d)=>`<div class="card"><h3>${t}</h3><div class="muted">${d}</div></div>`;
+  return `<h2>Quy trình đánh giá, phân hạng</h2>
+  ${step('1. Cấp xã','Chủ thể nộp hồ sơ. UBND xã kiểm tra thành phần hồ sơ, đánh giá nguồn gốc, nguyên liệu, lao động địa phương, bản sắc trong 15 ngày làm việc, rồi chuyển hồ sơ lên tỉnh.')}
+  ${step('2. Tổ tư vấn cấp tỉnh','Chủ tịch UBND tỉnh thành lập Hội đồng và Tổ tư vấn. Tổ tư vấn đánh giá hồ sơ, có thể khảo sát thực tế và đề nghị kiểm nghiệm bổ sung.')}
+  ${step('3. Hội đồng cấp tỉnh','Các thành viên chấm điểm theo Bộ tiêu chí. Kết quả lấy theo tổng điểm trung bình (tab Tổng hợp kết quả). Chủ tịch UBND tỉnh quyết định công nhận sản phẩm 3 sao và 4 sao.')}
+  ${step('4. Cấp Trung ương','Sản phẩm đạt từ 90 điểm do tỉnh lập hồ sơ gửi Bộ Nông nghiệp và Môi trường (văn bản đề nghị, báo cáo của Tổ tư vấn và Hội đồng, quyết định phê duyệt của Chủ tịch tỉnh, hồ sơ sản phẩm, 05 sản phẩm mẫu). Hội đồng Trung ương đánh giá, Bộ trưởng quyết định.')}
+  ${step('Lịch và hiệu lực','Tối thiểu 2 đợt mỗi năm. Theo hướng dẫn địa phương, xã gửi hồ sơ trước 30/4 và 30/10, tỉnh hoàn thành đợt 1 trước 30/6 và đợt 2 trước 30/12. Giấy chứng nhận có hiệu lực 36 tháng. Hồ sơ đánh giá lại nộp trong khoảng 180 đến 120 ngày trước khi hết hạn.')}
+  <p class="muted">Tóm tắt từ các nguồn đăng tải công khai về QĐ 26/2026/QĐ-TTg. Các mốc ngày nên đối chiếu lại với văn bản gốc và hướng dẫn của tỉnh.</p>`;
+}
+
+/* ===== Sao lưu ===== */
+function data(){
+  return `<h2>Sao lưu và chuyển dữ liệu</h2><div class="card"><p>Dữ liệu đang lưu trong trình duyệt này. Hãy sao lưu sau mỗi phiên chấm điểm, và dùng cùng một máy khi hội đồng chấm tập trung.</p>
+  <div class="row"><button class="btn" data-act="exportjson">Sao lưu JSON</button><button class="btn ghost" data-act="importjson">Khôi phục từ JSON</button><button class="btn ghost" data-act="csv">Xuất bảng tổng hợp (CSV)</button><span class="spacer"></span><button class="btn danger" data-act="wipe">Xóa toàn bộ dữ liệu</button></div></div>
+  <div class="card"><h3>Hướng nâng cấp</h3><div class="muted">Bước tiếp theo để thành viên chấm trên điện thoại cùng lúc: nối ứng dụng với Google Sheets qua Apps Script (mỗi phiếu ghi một dòng, đăng nhập bằng mã PIN), giữ nguyên giao diện hiện tại. Giao diện đã co giãn cho màn hình điện thoại.</div></div>`;
+}
+
+/* ===== Tiện ích giao diện ===== */
+function toast(t){const e=document.createElement('div');e.textContent=t;e.setAttribute('role','status');e.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:max(20px,env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:60;font-size:14px;max-width:90%';document.body.appendChild(e);setTimeout(()=>e.remove(),2600)}
+function modal(title,body,extra=''){document.getElementById('modal').innerHTML=`<div class="modal"><div class="box"><h3>${title}</h3>${body}<div class="row" style="margin-top:12px">${extra}<span class="spacer"></span><button class="btn ghost" data-act="close">Đóng</button></div></div></div>`}
+function csvText(){
+  const q=s=>'"'+String(s??'').replace(/"/g,'""')+'"';
+  const rows=[['Sản phẩm','Chủ thể','Nhóm','Số phiếu','A','B','C','Điểm TB','Hạng sao','Kết quả'].map(q).join(',')];
+  S.products.forEach(p=>{const a=aggregate(p.id);rows.push([p.name,p.owner,p.group,a.n+'/'+a.total,f1(a.avg.A),f1(a.avg.B),f1(a.avg.C),f1(a.avg.all),a.n?a.star:'',a.n?bandLabel(a.star):''].map(q).join(','))});
+  return rows.join('\n');
+}
+function showText(title,text,fname){
+  modal(title,`<textarea id="outx" readonly>${esc(text)}</textarea><p class="muted">Bấm Sao chép rồi dán vào Excel, Google Sheets hoặc tệp văn bản. Nếu trình duyệt cho phép, nút Tải về tạo tệp ${esc(fname)}.</p>`,
+  `<button class="btn" data-act="copyout">Sao chép</button><button class="btn ghost" data-act="dl" data-fn="${esc(fname)}">Tải về</button>`);
+}
+function demo(){
+  const d=fresh();d.demo=true;
+  d.members=[['Nguyễn Văn An','Chủ tịch','UBND tỉnh'],['Trần Thị Bình','Phó Chủ tịch','Sở Nông nghiệp và Môi trường'],['Lê Hoàng Cường','Thành viên','Sở Công Thương'],['Phạm Thu Dung','Thành viên','Sở Y tế'],['Võ Minh Khoa','Thành viên','Sở Khoa học và Công nghệ']].map(([name,role,unit])=>({id:uid(),name,role,unit,scores:true}));
+  d.products=[['Mật ong hoa cà phê','HTX Ong Mật Cam Lộ','Cam Lộ',GROUPS[0]],['Sáp ong tinh chế','Hộ KD Hương Rừng','Hướng Hóa',GROUPS[1]],['Hạt tiêu đen xay','Công ty Tiêu Cùa','Gio Linh',GROUPS[2]]].map(([name,owner,commune,group],i)=>({id:uid(),name,owner,commune,group,status:2+i%2,decisionDate:''}));
+  const base=[.93,.74,.58];
+  d.products.forEach((p,i)=>d.members.forEach((m,j)=>{const v={};SEED_CRIT.forEach((c,k)=>{const r=base[i]+((j*7+k*3)%5-2)*.02;v[c.id]=Math.max(0,Math.min(c.max,Math.round(c.max*r*2)/2))});d.scores[p.id+'|'+m.id]={v,submitted:!(i===2&&j===4),note:''}}));
+  S=d;save();
+}
+
+/* ===== Sự kiện ===== */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,a');if(!t)return;
+  if(t.dataset.go){e.preventDefault();go(t.dataset.go);return}
+  if(t.dataset.delp){S.products=S.products.filter(p=>p.id!==t.dataset.delp);Object.keys(S.scores).forEach(k=>{if(k.startsWith(t.dataset.delp+'|'))delete S.scores[k]});save();render();return}
+  if(t.dataset.delm){S.members=S.members.filter(m=>m.id!==t.dataset.delm);Object.keys(S.scores).forEach(k=>{if(k.endsWith('|'+t.dataset.delm))delete S.scores[k]});save();render();return}
+  if(t.dataset.delc){S.criteria.items=S.criteria.items.filter(c=>c.id!==t.dataset.delc);S.criteria.verified=false;save();render();return}
+  const a=t.dataset.act;if(!a)return;
+  if(a==='demo'){demo();render()}
+  else if(a==='wipe'){modal('Xóa toàn bộ dữ liệu?','<p>Sản phẩm, hội đồng và các phiếu chấm sẽ bị xóa khỏi trình duyệt này. Hãy sao lưu JSON trước nếu cần.</p>','<button class="btn danger" data-act="wipe2">Xóa</button>')}
+  else if(a==='wipe2'){S=fresh();save();modal('','','');document.getElementById('modal').innerHTML='';render()}
+  else if(a==='close')document.getElementById('modal').innerHTML='';
+  else if(a==='csv')showText('Bảng tổng hợp kết quả','﻿'+csvText(),'ocop-tong-hop.csv');
+  else if(a==='exportjson')showText('Sao lưu JSON',JSON.stringify(S),'ocop-sao-luu.json');
+  else if(a==='importjson')modal('Khôi phục từ JSON','<textarea id="impx" placeholder="Dán nội dung tệp sao lưu vào đây"></textarea>','<button class="btn" data-act="doimport">Khôi phục</button>');
+  else if(a==='doimport'){try{const o=JSON.parse(document.getElementById('impx').value);if(!o.criteria||!o.products)throw 0;S=Object.assign(fresh(),o);save();document.getElementById('modal').innerHTML='';render();toast('Đã khôi phục')}catch(_){toast('Nội dung không đúng định dạng sao lưu')}}
+  else if(a==='copyout'){const x=document.getElementById('outx');x.select();navigator.clipboard.writeText(x.value).then(()=>toast('Đã sao chép'),()=>toast('Đã chọn văn bản, nhấn Ctrl+C để sao chép'))}
+  else if(a==='dl'){const x=document.getElementById('outx').value;try{const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([x],{type:'text/plain;charset=utf-8'}));l.download=t.dataset.fn;l.click()}catch(_){toast('Trình duyệt chặn tải tệp, hãy dùng Sao chép')}}
+  else if(a==='addc'){S.criteria.items.push({id:'X'+(S.criteria.items.length+1),part:'A',name:'Tiêu chí mới',max:1,minStar:0,minScore:0,hint:''});S.criteria.verified=false;save();render()}
+  else if(a==='resetc'){S.criteria.items=JSON.parse(JSON.stringify(SEED_CRIT));S.criteria.verified=false;save();render()}
+  else if(a==='verify'){S.criteria.verified=!S.criteria.verified;save();render()}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.pstatus){S.products.find(p=>p.id===t.dataset.pstatus).status=+t.value;save();render()}
+  else if(t.dataset.pdate){const p=S.products.find(p=>p.id===t.dataset.pdate),y=+String(t.value).slice(0,4);
+    /* Bỏ qua ngày khi năm chưa gõ xong (0001, 0020...), không vẽ lại để giữ con trỏ */
+    if(t.value===''||(y>=2000&&y<=2100)){p.decisionDate=t.value;save();const h=document.getElementById('ch-'+p.id);if(h)h.textContent=certHint(p)}}
+  else if(t.dataset.mscore){S.members.find(m=>m.id===t.dataset.mscore).scores=t.checked;save()}
+  else if(t.id==='minv'){S.settings.minVotes=Math.max(1,num(t.value));save()}
+  else if(t.id==='rp'){sel.rp=t.value;render()}
+  else if(t.dataset.ck){const [id,k]=t.dataset.ck.split(':'),c=S.criteria.items.find(x=>x.id===id);if(!c)return;
+    c[k]=['max','minStar','minScore'].includes(k)?num(t.value):t.value;S.criteria.verified=false;save();render()}
+});
+document.addEventListener('submit',e=>{
+  e.preventDefault();const id=e.target.id,g=i=>document.getElementById(i);
+  if(id==='pf'){S.products.push({id:uid(),name:g('pn').value.trim(),owner:g('po').value.trim(),commune:g('pc').value.trim(),group:g('pg').value,status:0,decisionDate:''});S.demo=false;save();render()}
+  if(id==='mf'){S.members.push({id:uid(),name:g('mn').value.trim(),role:g('mr').value,unit:g('mu').value.trim(),pin:g('mp').value,scores:g('ms').checked});save();render()}
+});
+render();
+</script>
